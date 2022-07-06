@@ -1,28 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
 import React, {useCallback, useRef} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { WebView } from 'react-native-webview'
+import {StyleSheet, Text, View} from 'react-native';
+import {WebView} from 'react-native-webview'
+
+const WaitMs = async (milliseconds = 1000) => {
+  const promise = new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, milliseconds)
+  })
+  return promise
+}
 
 export default function App() {
   const webviewRef = useRef(null)
 
-  const sourceUri = (Platform.OS === 'android' ? 'file:///android_asset/' : '') + 'Web.bundle/loader.html'
+  const sourceUri = (Platform.OS === 'android' ? 'file:///android_asset/' : '') + 'Web.bundle/src/index.html'
   const params = 'platform=' + Platform.OS
 
-  const sendDataToWebView = useCallback(() => {
-    if (!webviewRef.current) {
-      return
-    }
-    webviewRef.current.postMessage('message from mobile!')
-    webviewRef.current.postMessage(JSON.stringify({ key: 'val 1', key2: 'val 2' }))
-  }, [])
-
-  const injectedJSBeforeIsLoaded = `
-    alert('in injectedJSBeforeIsLoaded')
-  `
-
   const injectedJS = `
-    alert('in injected JS')
     if (!window.location.search) {
       var link = document.getElementById('web-bundle-progress-bar');
       link.href = './src/index.html?${params}';
@@ -30,38 +25,52 @@ export default function App() {
     }
     true; // note: this is required, or you'll sometimes get silent failures
     `
+  const messageListenerInMobile = async (msg) => {
+    try {
+      const data = JSON.parse(msg.nativeEvent.data)
 
-  return (
-    <View style={styles.container}>
-      {/*<Text>Open up App.js to start working on your app!</Text>*/}
-      {/*<StatusBar style="auto" />*/}
+      await WaitMs(2000)
+
+      const payloadFromMobile = {
+        mobileKey : 'Data from mobile',
+        messageId: data.messageId,
+        timeoutId: data.timeoutId
+      }
+      console.log('sending back', payloadFromMobile)
+
+      webviewRef.current.postMessage(JSON.stringify(payloadFromMobile))
+    } catch (error) {
+      console.error('An error occurred: ', error)
+    }
+  }
+
+  return (<View style={styles.container}>
+    <Text>Some text above webview</Text>
+    <View style={{
+      flex: 1, width: '100%', height: '100%'
+    }}>
       <WebView
-        source={{ uri: sourceUri }}
+        source={{uri: sourceUri}}
         ref={webviewRef}
         originWhitelist={['*']}
-        onLoad={() => {
-          sendDataToWebView()
+        onLoad={() => {}}
+        onLoadEnd={() => {
+          console.log('load end');
         }}
-        onLoadEnd={() => {console.log('load end');}}
         onError={(err) => console.error('An error has occurred', err)}
         onHttpError={() => console.error('An HTTP error occurred')}
-        onMessage={(msg) => {
-          console.log('msg.origin is', msg.isTrusted);
-          console.log('In `onMessage`', msg.nativeEvent.data)
-        }}
+        onMessage={messageListenerInMobile}
         allowFileAccess={true}
         injectedJavaScript={injectedJS}
-        injectedJavaScriptBeforeContentLoaded={injectedJSBeforeIsLoaded}
       />
     </View>
-  );
+  </View>);
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 40,
+    backgroundColor: 'lightyellow', alignItems: 'center', justifyContent: 'center', // overflow: 'hidden',
   },
 });
