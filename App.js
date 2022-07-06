@@ -32,7 +32,7 @@ export default function App() {
       await WaitMs(2000)
 
       const payloadFromMobile = {
-        mobileKey : 'Data from mobile',
+        mobileKey: 'Data from mobile',
         messageId: data.messageId,
         timeoutId: data.timeoutId
       }
@@ -45,15 +45,15 @@ export default function App() {
   }
 
   return (<View style={styles.container}>
-    <Text>Some text above webview</Text>
     <View style={{
-      flex: 1, width: '100%', height: '100%'
+      flex: 1, width: '100%', height: '100%', marginTop: 40
     }}>
       <WebView
         source={{uri: sourceUri}}
         ref={webviewRef}
         originWhitelist={['*']}
-        onLoad={() => {}}
+        onLoad={() => {
+        }}
         onLoadEnd={() => {
           console.log('load end');
         }}
@@ -71,6 +71,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 40,
-    backgroundColor: 'lightyellow', alignItems: 'center', justifyContent: 'center', // overflow: 'hidden',
+    backgroundColor: 'lightyellow',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
