@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "async-post-conversation",
+    "slug": "async-post-conversation",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "async-post-conversation"
+}
