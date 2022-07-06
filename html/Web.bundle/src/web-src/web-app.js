@@ -10,7 +10,7 @@ function generateId() {
 function messageListenerInWeb(msg) {
   try {
     const {messageId, timeoutId} = JSON.parse(msg.data)
-    alert('Data from mobile is: ' + msg.data)
+    alert('Data from mobile (after timeout):\r\n\r\n' + msg.data)
 
     const promiseWithMessageId = promisesMap.get(messageId)
     promiseWithMessageId.resolver()
@@ -23,7 +23,10 @@ function messageListenerInWeb(msg) {
 }
 
 async function caller() {
+  alert('Sending data to Mobile...')
+
   await asyncPostMessage()
+
   alert('This should be printed after the promise has resolved')
 }
 
