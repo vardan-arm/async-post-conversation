@@ -8,7 +8,7 @@ await asyncPostMessage()
 alert('This should run after "asyncPostMessage" has resolved')
 ```
 
-### Some technical details:
+## Some technical details:
 1. When we want to send data from web, we create some promise and store it in a Map. We also set timeout so we won't be waiting for the mobile's reply forever.
 2. When we receive a reply from mobile, we find that promise in the Map and resolve it. This way we are awaiting until it's resolved/rejected. We also clear the corresponding timeout id.
 3. If timeout is expired, we reject the promise.
